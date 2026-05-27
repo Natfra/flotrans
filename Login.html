@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FLOTRANS — Iniciar sesión</title>
+<title>FLOTRANS — Acceso</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -21,347 +21,203 @@
     --red:         #e74c3c;
   }
 
-  html, body {
-    height: 100%;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    font-size: 14px;
-  }
+  html, body { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
 
-  body {
-    display: flex;
-    min-height: 100vh;
-    background: var(--white);
-  }
+  body { display: flex; min-height: 100vh; background: var(--white); }
 
-  /* ===================== PANEL IZQUIERDO ===================== */
+  /* ====== PANEL IZQUIERDO ====== */
   .panel-left {
     width: 50%;
     background: var(--green-dark);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 48px;
-    position: relative;
-    overflow: hidden;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 48px; position: relative; overflow: hidden;
   }
 
-  /* Círculos concéntricos decorativos */
-  .circles {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-  }
+  .circles { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
   .circles span {
-    position: absolute;
-    border-radius: 50%;
+    position: absolute; border-radius: 50%;
     border: 1.5px solid rgba(255,255,255,0.1);
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
   }
   .circles span:nth-child(1) { width: 220px; height: 220px; }
   .circles span:nth-child(2) { width: 340px; height: 340px; }
   .circles span:nth-child(3) { width: 460px; height: 460px; }
   .circles span:nth-child(4) { width: 580px; height: 580px; }
 
-  /* Brand */
-  .brand {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 40px;
-  }
-
-  .brand-logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
+  .brand { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 20px; margin-bottom: 40px; }
+  .brand-logo { display: flex; align-items: center; gap: 14px; }
   .brand-icon {
-    width: 52px; height: 52px;
-    border-radius: 50%;
+    width: 52px; height: 52px; border-radius: 50%;
     border: 2.5px solid rgba(255,255,255,0.6);
     background: var(--green-main);
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
+    display: flex; align-items: center; justify-content: center; position: relative;
   }
   .brand-icon::after {
-    content: '';
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: var(--yellow);
-    border: 3px solid rgba(255,255,255,0.4);
-    position: absolute;
+    content: ''; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--yellow); border: 3px solid rgba(255,255,255,0.4); position: absolute;
   }
-
-  .brand-name {
-    color: white;
-    font-size: 30px;
-    font-weight: 800;
-    letter-spacing: 2px;
-  }
+  .brand-name { color: white; font-size: 30px; font-weight: 800; letter-spacing: 2px; }
   .brand-name span { color: var(--yellow); }
+  .brand-tagline { color: var(--yellow); font-size: 15px; font-weight: 500; letter-spacing: 0.5px; opacity: 0.9; }
 
-  .brand-tagline {
-    color: var(--yellow);
-    font-size: 15px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    opacity: 0.9;
-  }
+  .bus-illustration { position: relative; z-index: 2; width: 260px; margin-bottom: 32px; animation: float 4s ease-in-out infinite; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-  /* Bus ilustración SVG */
-  .bus-illustration {
-    position: relative;
-    z-index: 2;
-    width: 260px;
-    margin-bottom: 32px;
-    animation: float 4s ease-in-out infinite;
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-10px); }
-  }
-
-  /* Ruta punteada con puntos animados */
   .route-line {
-    position: relative;
-    z-index: 2;
-    width: 260px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 4px;
-    margin-top: -12px;
+    position: relative; z-index: 2; width: 260px;
+    display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-top: -12px;
   }
-  .route-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--yellow);
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
+  .route-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--yellow); animation: pulse-dot 2s ease-in-out infinite; }
   .route-dot:nth-child(2) { animation-delay: 0.4s; }
   .route-dot:nth-child(3) { animation-delay: 0.8s; }
-  .route-dash {
-    flex: 1;
-    height: 2px;
-    border-top: 2px dashed rgba(255,255,255,0.3);
-  }
-  @keyframes pulse-dot {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50%       { transform: scale(1.4); opacity: 0.7; }
-  }
+  .route-dash { flex: 1; height: 2px; border-top: 2px dashed rgba(255,255,255,0.3); }
+  @keyframes pulse-dot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }
 
-  /* ===================== PANEL DERECHO ===================== */
+  /* ====== PANEL DERECHO ====== */
   .panel-right {
     width: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 64px;
-    background: var(--white);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 64px; background: var(--white);
+    overflow-y: auto;
   }
 
-  .login-box {
-    width: 100%;
-    max-width: 440px;
+  .login-box { width: 100%; max-width: 440px; }
+
+  /* ====== TABS ====== */
+  .tabs {
+    display: flex; border-radius: 12px;
+    background: var(--gray-bg); padding: 4px;
+    margin-bottom: 28px; gap: 4px;
+  }
+  .tab-btn {
+    flex: 1; height: 40px; border: none; border-radius: 9px;
+    background: transparent; font-size: 14px; font-weight: 600;
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--white); color: var(--green-dark);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
   }
 
-  .login-title {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--text-main);
-    margin-bottom: 6px;
-    letter-spacing: -0.3px;
-  }
-  .login-sub {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 36px;
-  }
+  /* ====== PANEL DE FORMULARIO ====== */
+  .form-panel { display: none; }
+  .form-panel.active { display: block; }
 
-  /* Form */
-  .form-group {
-    margin-bottom: 18px;
-  }
-  .form-group label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-main);
-    margin-bottom: 7px;
-  }
-  .input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
+  .panel-title { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; letter-spacing: -0.3px; }
+  .panel-sub   { font-size: 13.5px; color: var(--text-muted); margin-bottom: 24px; }
+
+  /* ====== FORM FIELDS ====== */
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .input-wrap { position: relative; display: flex; align-items: center; }
   .input-wrap svg.icon-left {
-    position: absolute;
-    left: 14px;
-    width: 18px; height: 18px;
-    color: var(--text-muted);
-    pointer-events: none;
-    flex-shrink: 0;
+    position: absolute; left: 14px; width: 18px; height: 18px;
+    color: var(--text-muted); pointer-events: none; flex-shrink: 0;
   }
-  .input-wrap input {
-    width: 100%;
-    height: 50px;
-    border: 1.5px solid var(--gray-border);
-    border-radius: 12px;
-    padding: 0 44px 0 44px;
-    font-size: 14px;
-    color: var(--text-main);
-    background: var(--gray-bg);
-    outline: none;
+  .input-wrap input, .input-wrap select {
+    width: 100%; height: 48px;
+    border: 1.5px solid var(--gray-border); border-radius: 11px;
+    padding: 0 44px 0 44px; font-size: 14px;
+    color: var(--text-main); background: var(--gray-bg); outline: none;
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    appearance: none;
   }
-  .input-wrap input:focus {
-    border-color: var(--green-main);
-    background: white;
+  .input-wrap select { padding-right: 36px; cursor: pointer; }
+  .input-wrap input:focus, .input-wrap select:focus {
+    border-color: var(--green-main); background: white;
     box-shadow: 0 0 0 3px rgba(42,122,59,0.1);
   }
-  .input-wrap input.error {
-    border-color: var(--red);
-    box-shadow: 0 0 0 3px rgba(231,76,60,0.1);
+  .input-wrap input.error, .input-wrap select.error {
+    border-color: var(--red); box-shadow: 0 0 0 3px rgba(231,76,60,0.1);
   }
   .input-wrap input::placeholder { color: #b0b0aa; }
 
-  /* Toggle password */
+  /* select arrow */
+  .input-wrap .sel-arrow {
+    position: absolute; right: 14px; pointer-events: none;
+    color: var(--text-muted); width: 16px; height: 16px;
+  }
+
   .btn-toggle-pass {
-    position: absolute; right: 14px;
-    background: none; border: none; cursor: pointer;
-    color: var(--text-muted); padding: 0;
-    display: flex; align-items: center;
-    transition: color 0.15s;
+    position: absolute; right: 14px; background: none; border: none;
+    cursor: pointer; color: var(--text-muted); padding: 0;
+    display: flex; align-items: center; transition: color 0.15s;
   }
   .btn-toggle-pass:hover { color: var(--green-main); }
   .btn-toggle-pass svg { width: 18px; height: 18px; }
 
-  /* Forgot password */
   .forgot-link {
-    display: block;
-    text-align: right;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--green-main);
-    text-decoration: none;
-    margin-top: 8px;
-    transition: color 0.15s;
+    display: block; text-align: right; font-size: 12.5px;
+    font-weight: 600; color: var(--green-main); text-decoration: none;
+    margin-top: 7px; transition: color 0.15s;
   }
   .forgot-link:hover { color: var(--green-dark); text-decoration: underline; }
 
-  /* Rol selector */
-  .rol-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-main);
-    margin-bottom: 10px;
-    display: block;
-  }
-  .rol-group {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 28px;
-  }
-  .rol-btn {
-    flex: 1;
-    height: 42px;
-    border: 1.5px solid var(--gray-border);
-    border-radius: 10px;
-    background: var(--gray-bg);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .rol-btn:hover {
-    border-color: var(--green-main);
-    color: var(--green-main);
-    background: var(--green-light);
-  }
-  .rol-btn.active {
-    border-color: var(--green-main);
-    background: var(--green-light);
-    color: var(--green-dark);
-    font-weight: 700;
-  }
+  .err-msg { font-size: 11.5px; color: var(--red); margin-top: 4px; display: none; }
+  .err-msg.show { display: block; }
 
-  /* Error message */
-  .error-msg {
-    font-size: 11.5px;
-    color: var(--red);
-    margin-top: 5px;
-    display: none;
-  }
-  .error-msg.show { display: block; }
-
-  /* Alert global */
   .alert-box {
-    background: #fdecea;
-    border: 1px solid #f5c6cb;
-    color: #842029;
-    border-radius: 10px;
-    padding: 11px 14px;
-    font-size: 13px;
-    margin-bottom: 18px;
-    display: none;
+    background: #fdecea; border: 1px solid #f5c6cb; color: #842029;
+    border-radius: 10px; padding: 11px 14px; font-size: 13px;
+    margin-bottom: 16px; display: none;
   }
   .alert-box.show { display: block; }
+  .alert-box.success { background: var(--green-light); border-color: #b2d8bc; color: var(--green-dark); }
+
+  /* Rol selector — solo en login */
+  .rol-label { font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 10px; display: block; }
+  .rol-group { display: flex; gap: 10px; margin-bottom: 22px; }
+  .rol-btn {
+    flex: 1; height: 40px; border: 1.5px solid var(--gray-border);
+    border-radius: 10px; background: var(--gray-bg); font-size: 13px;
+    font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+  }
+  .rol-btn:hover { border-color: var(--green-main); color: var(--green-main); background: var(--green-light); }
+  .rol-btn.active { border-color: var(--green-main); background: var(--green-light); color: var(--green-dark); font-weight: 700; }
 
   /* Submit */
-  .btn-login {
-    width: 100%;
-    height: 52px;
-    background: var(--green-dark);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    letter-spacing: 0.3px;
-    position: relative;
-    overflow: hidden;
+  .btn-submit {
+    width: 100%; height: 50px;
+    background: var(--green-dark); color: white; border: none;
+    border-radius: 11px; font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: background 0.2s, transform 0.1s; letter-spacing: 0.3px;
+    position: relative; overflow: hidden;
   }
-  .btn-login:hover:not(:disabled) { background: #133f1d; transform: translateY(-1px); }
-  .btn-login:active:not(:disabled) { transform: translateY(0); }
-  .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
-
-  .btn-login .spinner {
-    display: none;
-    width: 18px; height: 18px;
-    border: 2.5px solid rgba(255,255,255,0.4);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    position: absolute;
-    right: 20px; top: 50%;
-    transform: translateY(-50%);
+  .btn-submit:hover:not(:disabled) { background: #133f1d; transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+  .btn-submit .spinner {
+    display: none; width: 18px; height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.4); border-top-color: white;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+    position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
   }
-  .btn-login.loading .spinner { display: block; }
+  .btn-submit.loading .spinner { display: block; }
   @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
 
-  /* Footer */
-  .login-footer {
-    text-align: center;
-    margin-top: 28px;
-    font-size: 12px;
-    color: var(--text-muted);
+  .form-footer { text-align: center; margin-top: 18px; font-size: 12px; color: var(--text-muted); }
+
+  /* Fuerza de contraseña */
+  .pwd-strength { margin-top: 6px; }
+  .pwd-bars { display: flex; gap: 4px; margin-bottom: 4px; }
+  .pwd-bar {
+    flex: 1; height: 4px; border-radius: 2px;
+    background: var(--gray-border); transition: background 0.25s;
   }
+  .pwd-bar.weak   { background: var(--red); }
+  .pwd-bar.medium { background: var(--yellow); }
+  .pwd-bar.strong { background: var(--green-main); }
+  .pwd-label { font-size: 11px; color: var(--text-muted); }
 
   /* Responsive */
   @media (max-width: 768px) {
     .panel-left { display: none; }
-    .panel-right { width: 100%; padding: 40px 24px; }
+    .panel-right { width: 100%; padding: 32px 24px; }
+    .form-row-2 { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -369,9 +225,7 @@
 
 <!-- ===== PANEL IZQUIERDO ===== -->
 <div class="panel-left">
-  <div class="circles">
-    <span></span><span></span><span></span><span></span>
-  </div>
+  <div class="circles"><span></span><span></span><span></span><span></span></div>
 
   <div class="brand">
     <div class="brand-logo">
@@ -381,33 +235,23 @@
     <span class="brand-tagline">Transportamos con amor</span>
   </div>
 
-  <!-- Bus SVG illustration -->
   <svg class="bus-illustration" viewBox="0 0 260 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Cuerpo principal -->
     <rect x="20" y="40" width="220" height="90" rx="14" stroke="white" stroke-width="3" fill="none"/>
-    <!-- Techo redondeado -->
     <path d="M34 40 Q130 16 226 40" stroke="white" stroke-width="3" fill="none"/>
-    <!-- Ventanas -->
     <rect x="38" y="55" width="42" height="34" rx="6" stroke="white" stroke-width="2.5" fill="none"/>
     <rect x="92"  y="55" width="42" height="34" rx="6" stroke="white" stroke-width="2.5" fill="none"/>
     <rect x="146" y="55" width="42" height="34" rx="6" stroke="white" stroke-width="2.5" fill="none"/>
-    <!-- Puerta -->
     <rect x="196" y="62" width="30" height="40" rx="4" stroke="white" stroke-width="2.5" fill="none"/>
     <line x1="211" y1="62" x2="211" y2="102" stroke="white" stroke-width="1.5"/>
-    <!-- Ruedas -->
     <circle cx="68"  cy="133" r="18" stroke="white" stroke-width="3" fill="none"/>
     <circle cx="68"  cy="133" r="7"  stroke="white" stroke-width="2" fill="none"/>
     <circle cx="192" cy="133" r="18" stroke="white" stroke-width="3" fill="none"/>
     <circle cx="192" cy="133" r="7"  stroke="white" stroke-width="2" fill="none"/>
-    <!-- Faro delantero -->
     <rect x="22" y="72" width="10" height="16" rx="3" fill="rgba(240,201,58,0.8)"/>
-    <!-- Faro trasero -->
     <rect x="228" y="72" width="10" height="16" rx="3" fill="rgba(240,201,58,0.5)"/>
-    <!-- Punto amarillo logo en bus -->
     <circle cx="130" cy="28" r="5" fill="#f0c93a"/>
   </svg>
 
-  <!-- Ruta con puntos -->
   <div class="route-line">
     <div class="route-dot"></div>
     <div class="route-dash"></div>
@@ -420,173 +264,400 @@
 <!-- ===== PANEL DERECHO ===== -->
 <div class="panel-right">
   <div class="login-box">
-    <h1 class="login-title">Bienvenido de nuevo</h1>
-    <p class="login-sub">Ingresa tus credenciales para acceder</p>
 
-    <div class="alert-box" id="alertBox"></div>
-
-    <div class="form-group">
-      <label for="correo">Correo electrónico</label>
-      <div class="input-wrap">
-        <svg class="icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke-width="1.8"/>
-          <polyline points="22,6 12,13 2,6" stroke-width="1.8"/>
-        </svg>
-        <input type="email" id="correo" placeholder="tu@email.com" autocomplete="email">
-      </div>
-      <span class="error-msg" id="eCorreo">Ingresa un correo válido</span>
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="cambiarTab('login')">Iniciar sesión</button>
+      <button class="tab-btn"        onclick="cambiarTab('registro')">Registrarse</button>
     </div>
 
-    <div class="form-group">
-      <label for="contrasena">Contraseña</label>
-      <div class="input-wrap">
-        <svg class="icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke-width="1.8"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-width="1.8"/>
-        </svg>
-        <input type="password" id="contrasena" placeholder="••••••••" autocomplete="current-password">
-        <button type="button" class="btn-toggle-pass" onclick="togglePass()" id="btnToggle" aria-label="Ver contraseña">
-          <svg id="eyeIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="1.8"/>
-            <circle cx="12" cy="12" r="3" stroke-width="1.8"/>
+    <!-- ==================== PANEL LOGIN ==================== -->
+    <div class="form-panel active" id="panelLogin">
+      <h1 class="panel-title">Bienvenido de nuevo</h1>
+      <p class="panel-sub">Ingresa tus credenciales para acceder</p>
+
+      <div class="alert-box" id="alertLogin"></div>
+
+      <div class="form-group">
+        <label for="lCorreo">Correo electrónico</label>
+        <div class="input-wrap">
+          <svg class="icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke-width="1.8"/>
+            <polyline points="22,6 12,13 2,6" stroke-width="1.8"/>
           </svg>
-        </button>
+          <input type="email" id="lCorreo" placeholder="tu@email.com" autocomplete="email">
+        </div>
+        <span class="err-msg" id="elCorreo">Ingresa un correo válido</span>
       </div>
-      <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
-      <span class="error-msg" id="ePass">La contraseña es obligatoria</span>
+
+      <div class="form-group">
+        <label for="lPass">Contraseña</label>
+        <div class="input-wrap">
+          <svg class="icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke-width="1.8"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-width="1.8"/>
+          </svg>
+          <input type="password" id="lPass" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="btn-toggle-pass" onclick="togglePass('lPass','eyeL')" aria-label="Ver contraseña">
+            <svg id="eyeL" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="3" stroke-width="1.8"/>
+            </svg>
+          </button>
+        </div>
+        <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+        <span class="err-msg" id="elPass">La contraseña es obligatoria</span>
+      </div>
+
+      <span class="rol-label">Selecciona tu rol</span>
+      <div class="rol-group">
+        <button class="rol-btn active" data-rol="administrador" onclick="selRol(this)">Administrador</button>
+        <button class="rol-btn"        data-rol="operador"       onclick="selRol(this)">Operador</button>
+        <button class="rol-btn"        data-rol="conductor"      onclick="selRol(this)">Conductor</button>
+      </div>
+
+      <button class="btn-submit" id="btnLogin" onclick="iniciarSesion()">
+        Iniciar sesión
+        <span class="spinner"></span>
+      </button>
+
+      <p class="form-footer">Versión del sistema v1.0 | © FloTrans 2026</p>
     </div>
 
-    <span class="rol-label">Selecciona tu rol</span>
-    <div class="rol-group" id="rolGroup">
-      <button class="rol-btn active" data-rol="administrador" onclick="selRol(this)">Administrador</button>
-      <button class="rol-btn" data-rol="operador"       onclick="selRol(this)">Operador</button>
-      <button class="rol-btn" data-rol="conductor"      onclick="selRol(this)">Conductor</button>
+    <!-- ==================== PANEL REGISTRO ==================== -->
+    <div class="form-panel" id="panelRegistro">
+      <h1 class="panel-title">Crear cuenta</h1>
+      <p class="panel-sub">Completa tus datos para registrarte en el sistema</p>
+
+      <div class="alert-box" id="alertRegistro"></div>
+
+      <div class="form-group">
+        <label for="rNombre">Nombre completo *</label>
+        <div class="input-wrap">
+          <svg class="icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4" stroke-width="1.8"/>
+            <path d="M4 20v-1a8 8 0 0 1 16 0v1" stroke-width="1.8"/>
+          </svg>
+          <input type="text" id="rNombre" placeholder="Ej: Juan Carlos Pérez" autocomplete="name">
+        </div>
+        <span class="err-msg" id="erNombre">El nombre es obligatorio</span>
+      </div>
+
+      <div class="form-group">
+        <label for="rCorreo">Correo electrónico *</label>
+        <div class="input-wrap">
+          <svg class="icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke-width="1.8"/>
+            <polyline points="22,6 12,13 2,6" stroke-width="1.8"/>
+          </svg>
+          <input type="email" id="rCorreo" placeholder="tu@email.com" autocomplete="email">
+        </div>
+        <span class="err-msg" id="erCorreo">Ingresa un correo válido</span>
+      </div>
+
+      <div class="form-group">
+        <label for="rRol">Rol en el sistema *</label>
+        <div class="input-wrap">
+          <svg class="icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="1.8"/>
+            <circle cx="9" cy="7" r="4" stroke-width="1.8"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke-width="1.8"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-width="1.8"/>
+          </svg>
+          <select id="rRol">
+            <option value="">-- Selecciona un rol --</option>
+            <option value="administrador">Administrador</option>
+            <option value="operador">Operador</option>
+            <option value="conductor">Conductor</option>
+          </select>
+          <svg class="sel-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="m6 9 6 6 6-6" stroke-width="2"/>
+          </svg>
+        </div>
+        <span class="err-msg" id="erRol">Selecciona un rol</span>
+      </div>
+
+      <div class="form-group">
+        <label for="rPass">Contraseña *</label>
+        <div class="input-wrap">
+          <svg class="icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke-width="1.8"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-width="1.8"/>
+          </svg>
+          <input type="password" id="rPass" placeholder="Mínimo 8 caracteres"
+                 autocomplete="new-password" oninput="evaluarContrasena()">
+          <button type="button" class="btn-toggle-pass" onclick="togglePass('rPass','eyeR')" aria-label="Ver contraseña">
+            <svg id="eyeR" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="3" stroke-width="1.8"/>
+            </svg>
+          </button>
+        </div>
+        <div class="pwd-strength" id="pwdStrength" style="display:none">
+          <div class="pwd-bars">
+            <div class="pwd-bar" id="bar1"></div>
+            <div class="pwd-bar" id="bar2"></div>
+            <div class="pwd-bar" id="bar3"></div>
+            <div class="pwd-bar" id="bar4"></div>
+          </div>
+          <span class="pwd-label" id="pwdLabel"></span>
+        </div>
+        <span class="err-msg" id="erPass">La contraseña debe tener al menos 8 caracteres</span>
+      </div>
+
+      <div class="form-group">
+        <label for="rPass2">Confirmar contraseña *</label>
+        <div class="input-wrap">
+          <svg class="icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke-width="1.8"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-width="1.8"/>
+          </svg>
+          <input type="password" id="rPass2" placeholder="Repite la contraseña" autocomplete="new-password">
+          <button type="button" class="btn-toggle-pass" onclick="togglePass('rPass2','eyeR2')" aria-label="Ver contraseña">
+            <svg id="eyeR2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="3" stroke-width="1.8"/>
+            </svg>
+          </button>
+        </div>
+        <span class="err-msg" id="erPass2">Las contraseñas no coinciden</span>
+      </div>
+
+      <button class="btn-submit" id="btnRegistro" onclick="registrar()">
+        Crear cuenta
+        <span class="spinner"></span>
+      </button>
+
+      <p class="form-footer">Al registrarte aceptas las políticas del sistema FloTrans</p>
     </div>
 
-    <button class="btn-login" id="btnLogin" onclick="iniciarSesion()">
-      Iniciar sesión
-      <span class="spinner"></span>
-    </button>
-
-    <p class="login-footer">Versión del sistema v1.0 | © FloTrans 2026</p>
-  </div>
-</div>
+  </div><!-- /login-box -->
+</div><!-- /panel-right -->
 
 <script>
-  // =====================================================
-  // CONFIG — ajusta la URL si cambia la ruta
-  // =====================================================
-  const AUTH_URL = "http://localhost/flotrans/api/auth.php";
+// =====================================================
+// CONFIG
+// =====================================================
+const AUTH_URL     = "http://localhost/flotrans/api/auth.php";
+const REGISTRO_URL = "http://localhost/flotrans/api/registro.php";
 
-  let rolSeleccionado = 'administrador';
+let rolSeleccionado = 'administrador';
 
-  // ---- Toggle contraseña ----
-  function togglePass() {
-    const inp = document.getElementById('contrasena');
-    const icon = document.getElementById('eyeIcon');
-    const visible = inp.type === 'password';
-    inp.type = visible ? 'text' : 'password';
-    icon.innerHTML = visible
-      ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke-width="1.8"/><line x1="1" y1="1" x2="23" y2="23" stroke-width="1.8"/>`
-      : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke-width="1.8"/>`;
-  }
-
-  // ---- Seleccionar rol ----
-  function selRol(btn) {
-    document.querySelectorAll('.rol-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    rolSeleccionado = btn.dataset.rol;
-  }
-
-  // ---- Validación ----
-  function validar() {
-    let ok = true;
-    const correo = document.getElementById('correo').value.trim();
-    const pass   = document.getElementById('contrasena').value;
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(correo)) {
-      document.getElementById('eCorreo').classList.add('show');
-      document.getElementById('correo').classList.add('error');
-      ok = false;
-    } else {
-      document.getElementById('eCorreo').classList.remove('show');
-      document.getElementById('correo').classList.remove('error');
-    }
-
-    if (!pass) {
-      document.getElementById('ePass').classList.add('show');
-      document.getElementById('contrasena').classList.add('error');
-      ok = false;
-    } else {
-      document.getElementById('ePass').classList.remove('show');
-      document.getElementById('contrasena').classList.remove('error');
-    }
-
-    return ok;
-  }
-
-  // ---- Iniciar sesión ----
-  async function iniciarSesion() {
-    document.getElementById('alertBox').classList.remove('show');
-    if (!validar()) return;
-
-    const btn = document.getElementById('btnLogin');
-    btn.disabled = true;
-    btn.classList.add('loading');
-    btn.childNodes[0].textContent = 'Verificando…';
-
-    const payload = {
-      correo:    document.getElementById('correo').value.trim(),
-      contrasena: document.getElementById('contrasena').value,
-      rol:       rolSeleccionado,
-    };
-
-    try {
-      const res  = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-
-      if (!res.ok || data.error) {
-        mostrarAlerta(data.error || 'Credenciales incorrectas. Intenta de nuevo.');
-        btn.disabled = false;
-        btn.classList.remove('loading');
-        btn.childNodes[0].textContent = 'Iniciar sesión';
-        return;
-      }
-
-      // Guardar sesión en sessionStorage
-      sessionStorage.setItem('flotrans_user', JSON.stringify(data.usuario));
-
-      // Redirigir según el rol
-      const destinos = {
-        administrador: 'dashboard.html',
-        operador:      'dashboard.html',
-        conductor:     'conductor_panel.html',   // Página futura del conductor
-      };
-      window.location.href = destinos[data.usuario.rol] || 'dashboard.html';
-
-    } catch (e) {
-      mostrarAlerta('No se pudo conectar con el servidor. Verifica que XAMPP esté activo.');
-      btn.disabled = false;
-      btn.classList.remove('loading');
-      btn.childNodes[0].textContent = 'Iniciar sesión';
-    }
-  }
-
-  function mostrarAlerta(msg) {
-    const el = document.getElementById('alertBox');
-    el.textContent = msg;
-    el.classList.add('show');
-  }
-
-  // Enter para submit
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') iniciarSesion();
+// ---- Cambiar pestaña ----
+function cambiarTab(tab) {
+  const esLogin = tab === 'login';
+  document.getElementById('panelLogin').classList.toggle('active', esLogin);
+  document.getElementById('panelRegistro').classList.toggle('active', !esLogin);
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0) === esLogin);
   });
+  // Limpiar alertas al cambiar
+  ['alertLogin','alertRegistro'].forEach(id => {
+    document.getElementById(id).className = 'alert-box';
+  });
+}
+
+// ---- Toggle contraseña ----
+function togglePass(inputId, iconId) {
+  const inp  = document.getElementById(inputId);
+  const icon = document.getElementById(iconId);
+  const vis  = inp.type === 'password';
+  inp.type   = vis ? 'text' : 'password';
+  icon.innerHTML = vis
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke-width="1.8"/><line x1="1" y1="1" x2="23" y2="23" stroke-width="1.8"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke-width="1.8"/>`;
+}
+
+// ---- Selector de rol (Login) ----
+function selRol(btn) {
+  document.querySelectorAll('.rol-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  rolSeleccionado = btn.dataset.rol;
+}
+
+// ---- Fuerza de contraseña ----
+function evaluarContrasena() {
+  const val = document.getElementById('rPass').value;
+  const wrap = document.getElementById('pwdStrength');
+  if (!val) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
+  let score = 0;
+  if (val.length >= 8)               score++;
+  if (/[A-Z]/.test(val))             score++;
+  if (/[0-9]/.test(val))             score++;
+  if (/[^A-Za-z0-9]/.test(val))      score++;
+
+  const clases  = ['','weak','medium','medium','strong'];
+  const etiquetas = ['','Débil 😬','Regular 🤔','Buena 👍','Fuerte 💪'];
+  const bars = ['bar1','bar2','bar3','bar4'];
+
+  bars.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'pwd-bar' + (i < score ? ' ' + clases[score] : '');
+  });
+  document.getElementById('pwdLabel').textContent = etiquetas[score] || 'Muy corta ❌';
+}
+
+// ===========================================================
+// LOGIN
+// ===========================================================
+function validarLogin() {
+  let ok = true;
+  const correo = document.getElementById('lCorreo').value.trim();
+  const pass   = document.getElementById('lPass').value;
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+    show('elCorreo'); mark('lCorreo'); ok = false;
+  } else { hide('elCorreo'); unmark('lCorreo'); }
+
+  if (!pass) {
+    show('elPass'); mark('lPass'); ok = false;
+  } else { hide('elPass'); unmark('lPass'); }
+
+  return ok;
+}
+
+async function iniciarSesion() {
+  document.getElementById('alertLogin').className = 'alert-box';
+  if (!validarLogin()) return;
+
+  const btn = setLoading('btnLogin', 'Verificando…');
+
+  try {
+    const res  = await fetch(AUTH_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        correo:    document.getElementById('lCorreo').value.trim(),
+        contrasena: document.getElementById('lPass').value,
+        rol:       rolSeleccionado,
+      }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      mostrarAlerta('alertLogin', data.error || 'Credenciales incorrectas. Intenta de nuevo.');
+      stopLoading('btnLogin', 'Iniciar sesión');
+      return;
+    }
+
+    sessionStorage.setItem('flotrans_user', JSON.stringify(data.usuario));
+    const destinos = { administrador: 'dashboard.html', operador: 'dashboard.html', conductor: 'conductor_panel.html' };
+    window.location.href = destinos[data.usuario.rol] || 'dashboard.html';
+
+  } catch (e) {
+    mostrarAlerta('alertLogin', 'No se pudo conectar con el servidor. Verifica que XAMPP esté activo.');
+    stopLoading('btnLogin', 'Iniciar sesión');
+  }
+}
+
+// ===========================================================
+// REGISTRO
+// ===========================================================
+function validarRegistro() {
+  let ok = true;
+
+  const nombre = document.getElementById('rNombre').value.trim();
+  const correo = document.getElementById('rCorreo').value.trim();
+  const rol    = document.getElementById('rRol').value;
+  const pass   = document.getElementById('rPass').value;
+  const pass2  = document.getElementById('rPass2').value;
+
+  if (!nombre) { show('erNombre'); mark('rNombre'); ok = false; }
+  else         { hide('erNombre'); unmark('rNombre'); }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { show('erCorreo'); mark('rCorreo'); ok = false; }
+  else { hide('erCorreo'); unmark('rCorreo'); }
+
+  if (!rol) { show('erRol'); mark('rRol'); ok = false; }
+  else      { hide('erRol'); unmark('rRol'); }
+
+  if (pass.length < 8) { show('erPass'); mark('rPass'); ok = false; }
+  else                 { hide('erPass'); unmark('rPass'); }
+
+  if (pass !== pass2 || !pass2) { show('erPass2'); mark('rPass2'); ok = false; }
+  else                          { hide('erPass2'); unmark('rPass2'); }
+
+  return ok;
+}
+
+async function registrar() {
+  document.getElementById('alertRegistro').className = 'alert-box';
+  if (!validarRegistro()) return;
+
+  const btn = setLoading('btnRegistro', 'Creando cuenta…');
+
+  try {
+    const res  = await fetch(REGISTRO_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre:     document.getElementById('rNombre').value.trim(),
+        correo:     document.getElementById('rCorreo').value.trim(),
+        contrasena: document.getElementById('rPass').value,
+        rol:        document.getElementById('rRol').value,
+      }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      mostrarAlerta('alertRegistro', data.error || 'Error al crear la cuenta.');
+      stopLoading('btnRegistro', 'Crear cuenta');
+      return;
+    }
+
+    // Éxito: mostrar mensaje y cambiar a Login
+    mostrarAlerta('alertRegistro', '✓ Cuenta creada correctamente. Ya puedes iniciar sesión.', true);
+    stopLoading('btnRegistro', 'Crear cuenta');
+
+    // Limpiar campos de registro
+    ['rNombre','rCorreo','rPass','rPass2'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('rRol').value = '';
+    document.getElementById('pwdStrength').style.display = 'none';
+
+    // Cambiar a Login después de 2 s
+    setTimeout(() => cambiarTab('login'), 2200);
+
+  } catch (e) {
+    mostrarAlerta('alertRegistro', 'No se pudo conectar con el servidor. Verifica que XAMPP esté activo.');
+    stopLoading('btnRegistro', 'Crear cuenta');
+  }
+}
+
+// ---- Helpers ----
+function show(id) { document.getElementById(id).classList.add('show'); }
+function hide(id) { document.getElementById(id).classList.remove('show'); }
+function mark(id) { document.getElementById(id).classList.add('error'); }
+function unmark(id) { document.getElementById(id).classList.remove('error'); }
+
+function mostrarAlerta(boxId, msg, ok = false) {
+  const el = document.getElementById(boxId);
+  el.textContent = msg;
+  el.className   = 'alert-box show' + (ok ? ' success' : '');
+}
+
+function setLoading(btnId, txt) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.childNodes[0].textContent = txt;
+  return btn;
+}
+
+function stopLoading(btnId, txt) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  btn.childNodes[0].textContent = txt;
+}
+
+// Enter para submit
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const activo = document.getElementById('panelLogin').classList.contains('active');
+  activo ? iniciarSesion() : registrar();
+});
 </script>
 </body>
 </html>

@@ -319,6 +319,9 @@
   }
   #toast.show { transform: translateY(0); opacity: 1; }
 </style>
+
+<!-- ✅ CAMBIO 1: Incluir session_guard.js para leer la sesión y poblar nombre/avatar -->
+<script src="session_guard.js"></script>
 </head>
 <body>
 
@@ -329,14 +332,15 @@
     <span class="logo-text">FLOTRANS</span>
   </div>
   <div class="sidebar-user">
-    <div class="avatar" id="sidebarAvatar">JD</div>
+    <!-- sidebarAvatar y sidebarName son llenados automáticamente por session_guard.js -->
+    <div class="avatar" id="sidebarAvatar">--</div>
     <div class="user-info">
-      <p id="sidebarName">Juan Pérez</p>
-      <span>Administrador</span>
+      <p id="sidebarName">Cargando…</p>
+      <!-- ✅ CAMBIO 2: El rol también se inyecta dinámicamente -->
+      <span id="sidebarRol">—</span>
     </div>
   </div>
   <nav class="sidebar-nav">
-    <!-- ✅ Dashboard es el activo aquí -->
     <a class="nav-item active" href="dashboard.html">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="1.8"/></svg>
       Dashboard
@@ -363,7 +367,8 @@
     </a>
   </nav>
   <div class="sidebar-bottom">
-    <a class="nav-item" href="#">
+    <!-- ✅ CAMBIO 3: onclick llama a cerrarSesion() del session_guard.js -->
+    <a class="nav-item" href="#" onclick="cerrarSesion()">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-width="1.8"/><polyline points="16 17 21 12 16 7" stroke-width="1.8"/><line x1="21" y1="12" x2="9" y2="12" stroke-width="1.8"/></svg>
       Cerrar sesión
     </a>
@@ -386,7 +391,8 @@
       <button class="icon-btn">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="3" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke-width="1.8"/></svg>
       </button>
-      <div class="topbar-avatar">JD</div>
+      <!-- ✅ CAMBIO 4: topbar-avatar también se actualiza con las iniciales del usuario real -->
+      <div class="topbar-avatar" id="topbarAvatar">--</div>
     </div>
   </header>
 
@@ -403,13 +409,10 @@
     </div>
 
     <!-- KPI CARDS -->
-    <div class="kpi-grid" id="kpiGrid">
-      <!-- Rendered by JS -->
-    </div>
+    <div class="kpi-grid" id="kpiGrid"></div>
 
     <!-- CHARTS ROW -->
     <div class="charts-row">
-      <!-- Occupancy chart -->
       <div class="card">
         <div class="card-header">
           <span class="card-title">Ocupación de flota por franja horaria</span>
@@ -421,7 +424,6 @@
         <div class="bar-chart" id="barChart"></div>
       </div>
 
-      <!-- Contratos donut -->
       <div class="card">
         <div class="card-header">
           <span class="card-title">Contratos por Tipo</span>
@@ -435,7 +437,6 @@
 
     <!-- BOTTOM ROW -->
     <div class="bottom-row">
-      <!-- Rutas del día -->
       <div class="card">
         <div class="card-header">
           <span class="card-title">Rutas del Día</span>
@@ -455,7 +456,6 @@
         </table>
       </div>
 
-      <!-- Alertas -->
       <div class="card">
         <div class="card-header">
           <span class="card-title">Alertas Recientes</span>
@@ -474,6 +474,44 @@
 
 <script>
 // =====================================================
+// ✅ INYECTAR DATOS DEL USUARIO DESDE sessionStorage
+// Esto complementa a session_guard.js que ya pobló
+// sidebarName y sidebarAvatar; aquí además ponemos
+// el rol en texto legible y actualizamos el topbar.
+// =====================================================
+(function inyectarUsuario() {
+  try {
+    const user = JSON.parse(sessionStorage.getItem('flotrans_user') || '{}');
+    if (!user || !user.nombre) return; // session_guard.js ya redirigió si no hay sesión
+
+    // Nombre en sidebar (session_guard ya lo hace, pero lo reforzamos)
+    const nameEl = document.getElementById('sidebarName');
+    if (nameEl) nameEl.textContent = user.nombre;
+
+    // Rol en texto capitalizado
+    const rolEl = document.getElementById('sidebarRol');
+    if (rolEl) {
+      const roles = { administrador: 'Administrador', operador: 'Operador', conductor: 'Conductor' };
+      rolEl.textContent = roles[user.rol] || user.rol;
+    }
+
+    // Iniciales para ambos avatares
+    const iniciales = user.nombre
+      .trim()
+      .split(' ')
+      .slice(0, 2)
+      .map(p => p[0].toUpperCase())
+      .join('');
+
+    const avatarEl  = document.getElementById('sidebarAvatar');
+    const topAvatEl = document.getElementById('topbarAvatar');
+    if (avatarEl)  avatarEl.textContent  = iniciales;
+    if (topAvatEl) topAvatEl.textContent = iniciales;
+
+  } catch (e) { /* silencioso */ }
+})();
+
+// =====================================================
 // API CONFIG
 // =====================================================
 const BASE_URL = "http://localhost/flotrans/api";
@@ -484,44 +522,32 @@ document.getElementById('fechaHoy').textContent =
   hoy.toLocaleDateString('es-CO', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
 // =====================================================
-// KPI CARDS — carga datos reales de la API
+// KPI CARDS
 // =====================================================
 const kpiDefs = [
   {
-    id: 'rutas',
-    icon: 'map',
-    iconClass: 'green',
-    label: 'Rutas Activas Hoy',
+    id: 'rutas', icon: 'map', iconClass: 'green', label: 'Rutas Activas Hoy',
     subFn: (d) => `de ${d.rutas_total ?? '—'} programadas`,
     url: `${BASE_URL}/rutas.php?resumen=1`,
     valueFn: (d) => d.rutas_activas ?? 0,
     trendFn: (d) => d.rutas_trend ?? null,
   },
   {
-    id: 'conductores',
-    icon: 'users',
-    iconClass: 'blue',
-    label: 'Conductores Disponibles',
+    id: 'conductores', icon: 'users', iconClass: 'blue', label: 'Conductores Disponibles',
     subFn: (d) => `de ${d.conductores_total ?? '—'} registrados`,
     url: `${BASE_URL}/conductores.php?resumen=1`,
     valueFn: (d) => d.disponibles ?? 0,
     trendFn: (d) => d.conductores_trend ?? null,
   },
   {
-    id: 'vehiculos',
-    icon: 'bus',
-    iconClass: 'bus',
-    label: 'Vehículos en Servicio',
+    id: 'vehiculos', icon: 'bus', iconClass: 'bus', label: 'Vehículos en Servicio',
     subFn: (d) => `de ${d.vehiculos_total ?? '—'} disponibles`,
     url: `${BASE_URL}/vehiculos.php?resumen=1`,
     valueFn: (d) => d.en_servicio ?? 0,
     trendFn: (d) => d.vehiculos_trend ?? null,
   },
   {
-    id: 'conflictos',
-    icon: 'alert',
-    iconClass: 'red',
-    label: 'Conflictos Detectados',
+    id: 'conflictos', icon: 'alert', iconClass: 'red', label: 'Conflictos Detectados',
     subFn: (d) => 'requieren atención',
     url: `${BASE_URL}/alertas.php?resumen=1`,
     valueFn: (d) => d.conflictos ?? 0,
@@ -530,15 +556,14 @@ const kpiDefs = [
 ];
 
 const svgIcons = {
-  map: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" stroke-width="1.8"/><line x1="8" y1="2" x2="8" y2="18" stroke-width="1.8"/><line x1="16" y1="6" x2="16" y2="22" stroke-width="1.8"/></svg>`,
+  map:   `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" stroke-width="1.8"/><line x1="8" y1="2" x2="8" y2="18" stroke-width="1.8"/><line x1="16" y1="6" x2="16" y2="22" stroke-width="1.8"/></svg>`,
   users: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" stroke-width="1.8"/><circle cx="17" cy="9" r="3" stroke-width="1.8"/><path d="M1 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2" stroke-width="1.8"/><path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke-width="1.8"/></svg>`,
-  bus: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="9" width="22" height="10" rx="2" stroke-width="1.8"/><path d="M5 9V6a7 7 0 0 1 14 0v3" stroke-width="1.8"/><circle cx="7" cy="19" r="2" stroke-width="1.8"/><circle cx="17" cy="19" r="2" stroke-width="1.8"/></svg>`,
+  bus:   `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="9" width="22" height="10" rx="2" stroke-width="1.8"/><path d="M5 9V6a7 7 0 0 1 14 0v3" stroke-width="1.8"/><circle cx="7" cy="19" r="2" stroke-width="1.8"/><circle cx="17" cy="19" r="2" stroke-width="1.8"/></svg>`,
   alert: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke-width="1.8"/><line x1="12" y1="9" x2="12" y2="13" stroke-width="1.8"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.5"/></svg>`,
 };
 
 function renderKpiSkeleton() {
-  const grid = document.getElementById('kpiGrid');
-  grid.innerHTML = kpiDefs.map(() => `
+  document.getElementById('kpiGrid').innerHTML = kpiDefs.map(() => `
     <div class="kpi-card">
       <div class="kpi-top">
         <div class="skeleton" style="width:46px;height:46px;border-radius:12px"></div>
@@ -556,16 +581,15 @@ async function cargarKPIs() {
     kpiDefs.map(k => fetch(k.url).then(r => r.json()).catch(() => null))
   );
 
-  const grid = document.getElementById('kpiGrid');
-  grid.innerHTML = kpiDefs.map((k, i) => {
-    const data = results[i].value ?? {};
-    const val = k.valueFn(data);
+  document.getElementById('kpiGrid').innerHTML = kpiDefs.map((k, i) => {
+    const data  = results[i].value ?? {};
+    const val   = k.valueFn(data);
     const trend = k.trendFn(data);
-    const sub = k.subFn(data);
+    const sub   = k.subFn(data);
 
     let trendHtml = '';
     if (trend !== null && trend !== undefined) {
-      const isUp = trend >= 0;
+      const isUp  = trend >= 0;
       const arrow = isUp
         ? `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15" stroke-width="2.5"/></svg>`
         : `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-width="2.5"/></svg>`;
@@ -578,7 +602,7 @@ async function cargarKPIs() {
           <div class="kpi-icon ${k.iconClass}">${svgIcons[k.icon]}</div>
           ${trendHtml}
         </div>
-        <div class="kpi-value" id="kpi-${k.id}">${val}</div>
+        <div class="kpi-value">${val}</div>
         <div class="kpi-label">${k.label}</div>
         <div class="kpi-sub">${sub}</div>
       </div>
@@ -587,34 +611,32 @@ async function cargarKPIs() {
 }
 
 // =====================================================
-// BAR CHART — Ocupación de flota por franja horaria
+// BAR CHART
 // =====================================================
 const chartData = {
   semana: [
-    { label: 'Lun', val: 18 }, { label: 'Mar', val: 22 }, { label: 'Mié', val: 20 },
-    { label: 'Jue', val: 24 }, { label: 'Vie', val: 19 }, { label: 'Sáb', val: 10 }, { label: 'Dom', val: 5 },
+    { label:'Lun', val:18 },{ label:'Mar', val:22 },{ label:'Mié', val:20 },
+    { label:'Jue', val:24 },{ label:'Vie', val:19 },{ label:'Sáb', val:10 },{ label:'Dom', val:5 },
   ],
   mes: [
-    { label: 'S1', val: 20 }, { label: 'S2', val: 23 }, { label: 'S3', val: 18 }, { label: 'S4', val: 25 },
+    { label:'S1', val:20 },{ label:'S2', val:23 },{ label:'S3', val:18 },{ label:'S4', val:25 },
   ],
 };
 
 async function cargarOcupacion() {
   try {
-    const res = await fetch(`${BASE_URL}/rutas.php?ocupacion=1`);
+    const res  = await fetch(`${BASE_URL}/rutas.php?ocupacion=1`);
     const data = await res.json();
-    if (Array.isArray(data) && data.length) {
-      chartData.semana = data;
-    }
+    if (Array.isArray(data) && data.length) chartData.semana = data;
   } catch (e) { /* usa datos por defecto */ }
   renderBarChart();
 }
 
 function renderBarChart() {
   const period = document.getElementById('chartPeriod').value;
-  const items = chartData[period];
-  const max = Math.max(...items.map(i => i.val), 1);
-  const maxH = 140;
+  const items  = chartData[period];
+  const max    = Math.max(...items.map(i => i.val), 1);
+  const maxH   = 140;
 
   document.getElementById('barChart').innerHTML = items.map(item => {
     const h = Math.round((item.val / max) * maxH);
@@ -630,40 +652,31 @@ function renderBarChart() {
 }
 
 // =====================================================
-// DONUT CHART — Contratos por tipo
+// DONUT CHART
 // =====================================================
 async function cargarContratos() {
   let tipos = [
-    { label: 'Educativo', pct: 45, color: '#1a5c2a' },
-    { label: 'Industrial', pct: 30, color: '#4caf70' },
-    { label: 'Urbano',    pct: 25, color: '#a8d5b5' },
+    { label:'Educativo', pct:45, color:'#1a5c2a' },
+    { label:'Industrial', pct:30, color:'#4caf70' },
+    { label:'Urbano',    pct:25, color:'#a8d5b5' },
   ];
   let total = 0;
-
   try {
-    const res = await fetch(`${BASE_URL}/contratos.php?resumen=1`);
+    const res  = await fetch(`${BASE_URL}/contratos.php?resumen=1`);
     const data = await res.json();
-    if (data.tipos && Array.isArray(data.tipos) && data.tipos.length) {
-      tipos = data.tipos;
-    }
+    if (data.tipos && Array.isArray(data.tipos) && data.tipos.length) tipos = data.tipos;
     total = data.total ?? 0;
   } catch (e) { /* usa datos por defecto */ }
-
   renderDonut(tipos, total);
 }
 
 function renderDonut(items, total) {
   const cx = 80, cy = 80, r = 58, stroke = 22;
   const circ = 2 * Math.PI * r;
-  let offset = -circ * 0.25; // start at top
+  let offset = -circ * 0.25;
 
-  const svgEl = document.getElementById('donutSvg');
-  const legendEl = document.getElementById('donutLegend');
-
-  // Background ring
   let paths = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f0f0ee" stroke-width="${stroke}"/>`;
-
-  let sum = items.reduce((a, b) => a + (b.pct ?? 0), 0);
+  let sum   = items.reduce((a, b) => a + (b.pct ?? 0), 0);
   if (sum === 0) sum = 1;
 
   items.forEach(item => {
@@ -674,8 +687,7 @@ function renderDonut(items, total) {
       stroke="${item.color}" stroke-width="${stroke}"
       stroke-dasharray="${dash} ${gap}"
       stroke-dashoffset="${-offset}"
-      style="transition: stroke-dasharray 0.6s ease"
-    />`;
+      style="transition: stroke-dasharray 0.6s ease"/>`;
     offset += dash;
   });
 
@@ -684,9 +696,8 @@ function renderDonut(items, total) {
        <text x="${cx}" y="${cy + 14}" text-anchor="middle" font-size="11" fill="#6b6b66">contratos</text>`
     : `<text x="${cx}" y="${cy + 5}" text-anchor="middle" font-size="11" fill="#6b6b66">—</text>`;
 
-  svgEl.innerHTML = paths + totalTxt;
-
-  legendEl.innerHTML = items.map(item => `
+  document.getElementById('donutSvg').innerHTML   = paths + totalTxt;
+  document.getElementById('donutLegend').innerHTML = items.map(item => `
     <div class="legend-item">
       <div class="legend-left">
         <div class="legend-dot" style="background:${item.color}"></div>
@@ -698,86 +709,57 @@ function renderDonut(items, total) {
 }
 
 // =====================================================
-// RUTAS DEL DÍA — solo desde la API, sin datos hardcodeados
+// RUTAS DEL DÍA
 // =====================================================
 async function cargarRutas() {
   const tbody = document.getElementById('routesTbody');
   tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:28px;color:var(--text-muted);font-size:13px">Cargando rutas…</td></tr>`;
-
   try {
     const res  = await fetch(`${BASE_URL}/rutas.php?hoy=1&limit=6`);
     const data = await res.json();
-
     if (!Array.isArray(data) || data.length === 0) {
-      tbody.innerHTML = `
-        <tr><td colspan="3">
-          <div style="text-align:center;padding:32px 16px;color:var(--text-muted)">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="36" height="36" style="opacity:.3;display:block;margin:0 auto 10px"><line x1="3" y1="12" x2="21" y2="12" stroke-width="1.6"/><polyline points="8 8 3 12 8 16" stroke-width="1.6"/><polyline points="16 8 21 12 16 16" stroke-width="1.6"/></svg>
-            <p style="font-size:13px;font-weight:600;color:var(--text-main)">Sin rutas programadas hoy</p>
-            <small style="font-size:12px">Las rutas aparecerán aquí una vez sean registradas</small>
-          </div>
-        </td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="3"><div style="text-align:center;padding:32px 16px;color:var(--text-muted)">
+        <p style="font-size:13px;font-weight:600;color:var(--text-main)">Sin rutas programadas hoy</p>
+        <small>Las rutas aparecerán aquí una vez sean registradas</small>
+      </div></td></tr>`;
       return;
     }
-
     tbody.innerHTML = data.map(r => `
       <tr>
         <td><div class="route-name">${esc(r.nombre)}</div></td>
-        <td>${r.conductor
-          ? `<div class="route-conductor">${esc(r.conductor)}</div>`
-          : `<span class="route-empty">Sin asignar</span>`}
-        </td>
-        <td>${r.placa
-          ? `<span class="placa-sm">${esc(r.placa)}</span>`
-          : '—'}
-        </td>
+        <td>${r.conductor ? `<div class="route-conductor">${esc(r.conductor)}</div>` : `<span class="route-empty">Sin asignar</span>`}</td>
+        <td>${r.placa ? `<span class="placa-sm">${esc(r.placa)}</span>` : '—'}</td>
       </tr>
     `).join('');
-
   } catch (e) {
-    tbody.innerHTML = `
-      <tr><td colspan="3">
-        <div style="text-align:center;padding:28px 16px;color:var(--text-muted)">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="32" height="32" style="opacity:.3;display:block;margin:0 auto 8px"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><line x1="12" y1="8" x2="12" y2="12" stroke-width="1.6"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2.5"/></svg>
-          <small style="font-size:12px">No se pudo conectar con la API</small>
-        </div>
-      </td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:28px;color:var(--text-muted)"><small>No se pudo conectar con la API</small></td></tr>`;
   }
 }
 
 // =====================================================
-// ALERTAS — solo desde la API, sin datos hardcodeados
+// ALERTAS
 // =====================================================
 async function cargarAlertas() {
   const listEl  = document.getElementById('alertsList');
   const countEl = document.getElementById('alertCount');
-
-  listEl.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted);font-size:13px">Cargando alertas…</div>`;
-
   const iconMap = {
     warn:  `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke-width="1.8"/><line x1="12" y1="9" x2="12" y2="13" stroke-width="1.8"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.5"/></svg>`,
     error: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="1.8"/><line x1="12" y1="8" x2="12" y2="12" stroke-width="1.8"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2.5"/></svg>`,
     info:  `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="1.8"/><line x1="12" y1="16" x2="12" y2="12" stroke-width="1.8"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.5"/></svg>`,
   };
-
+  listEl.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted);font-size:13px">Cargando alertas…</div>`;
   try {
     const res  = await fetch(`${BASE_URL}/alertas.php?limit=5`);
     const data = await res.json();
-
     if (!Array.isArray(data) || data.length === 0) {
       countEl.textContent = '0 alertas';
-      listEl.innerHTML = `
-        <div style="text-align:center;padding:32px 16px;color:var(--text-muted)">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="36" height="36" style="opacity:.3;display:block;margin:0 auto 10px"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-width="1.6"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-width="1.6"/></svg>
-          <p style="font-size:13px;font-weight:600;color:var(--text-main)">Sin alertas por ahora</p>
-          <small style="font-size:12px">Todo está en orden</small>
-        </div>`;
+      listEl.innerHTML = `<div style="text-align:center;padding:32px 16px;color:var(--text-muted)">
+        <p style="font-size:13px;font-weight:600;color:var(--text-main)">Sin alertas por ahora</p>
+        <small>Todo está en orden</small></div>`;
       return;
     }
-
     countEl.textContent = `${data.length} alertas`;
     document.getElementById('notifBadge').style.display = 'block';
-
     listEl.innerHTML = data.map(a => `
       <div class="alert-item ${a.tipo}">
         <div class="alert-icon ${a.tipo}">${iconMap[a.tipo] || iconMap.info}</div>
@@ -787,18 +769,14 @@ async function cargarAlertas() {
         </div>
       </div>
     `).join('');
-
   } catch (e) {
     countEl.textContent = '—';
-    listEl.innerHTML = `
-      <div style="text-align:center;padding:28px 16px;color:var(--text-muted)">
-        <small style="font-size:12px">No se pudo conectar con la API</small>
-      </div>`;
+    listEl.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted)"><small>No se pudo conectar con la API</small></div>`;
   }
 }
 
 // =====================================================
-// Reporte del día
+// REPORTE
 // =====================================================
 function generarReporte() {
   mostrarToast('✓ Generando reporte… (conecta con tu API de reportes)');
