@@ -331,9 +331,14 @@
     <div class="logo-icon"></div>
     <span class="logo-text">FLOTRANS</span>
   </div>
-  <div class="sidebar-user">
-    <div class="avatar">JD</div>
-    <div class="user-info"><p>Juan Pérez</p><span>Administrador</span></div>
+ <div class="sidebar-user">
+    <!-- sidebarAvatar y sidebarName son llenados automáticamente por session_guard.js -->
+    <div class="avatar" id="sidebarAvatar">--</div>
+    <div class="user-info">
+      <p id="sidebarName">Cargando…</p>
+      <!-- ✅ CAMBIO 2: El rol también se inyecta dinámicamente -->
+      <span id="sidebarRol">—</span>
+    </div>
   </div>
   <nav class="sidebar-nav">
     <a class="nav-item" href="dashboard.html">
@@ -562,6 +567,37 @@
 <div id="toast"></div>
 
 <script>
+  (function inyectarUsuario() {
+  try {
+    const user = JSON.parse(sessionStorage.getItem('flotrans_user') || '{}');
+    if (!user || !user.nombre) return; // session_guard.js ya redirigió si no hay sesión
+
+    // Nombre en sidebar (session_guard ya lo hace, pero lo reforzamos)
+    const nameEl = document.getElementById('sidebarName');
+    if (nameEl) nameEl.textContent = user.nombre;
+
+    // Rol en texto capitalizado
+    const rolEl = document.getElementById('sidebarRol');
+    if (rolEl) {
+      const roles = { administrador: 'Administrador', operador: 'Operador', conductor: 'Conductor' };
+      rolEl.textContent = roles[user.rol] || user.rol;
+    }
+
+    // Iniciales para ambos avatares
+    const iniciales = user.nombre
+      .trim()
+      .split(' ')
+      .slice(0, 2)
+      .map(p => p[0].toUpperCase())
+      .join('');
+
+    const avatarEl  = document.getElementById('sidebarAvatar');
+    const topAvatEl = document.getElementById('topbarAvatar');
+    if (avatarEl)  avatarEl.textContent  = iniciales;
+    if (topAvatEl) topAvatEl.textContent = iniciales;
+
+  } catch (e) { /* silencioso */ }
+})();
   const API_URL = "http://localhost/flotrans/api/vehiculos.php";
   let vehiculos = [];
 

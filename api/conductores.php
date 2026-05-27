@@ -31,7 +31,22 @@ try {
 }
  
 $method = $_SERVER['REQUEST_METHOD'];
-$input  = json_decode(file_get_contents("php://input"), true);
+
+$input = json_decode(file_get_contents("php://input"), true);
+
+$id = isset($_GET['id']) ? (int)$_GET['id'] : null;
+$input = json_decode(file_get_contents("php://input"), true);
+
+if (
+    in_array($method, ['POST', 'PUT']) &&
+    json_last_error() !== JSON_ERROR_NONE
+) {
+    http_response_code(400);
+    echo json_encode([
+        "error" => "JSON inválido"
+    ]);
+    exit();
+}
 $id     = isset($_GET['id']) ? (int)$_GET['id'] : null;
  
 // =====================================================

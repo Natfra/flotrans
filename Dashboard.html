@@ -321,7 +321,7 @@
 </style>
 
 <!-- ✅ CAMBIO 1: Incluir session_guard.js para leer la sesión y poblar nombre/avatar -->
-<script src="session_guard.js"></script>
+<script src="api/session_guard.js"></script>
 </head>
 <body>
 
@@ -514,7 +514,7 @@
 // =====================================================
 // API CONFIG
 // =====================================================
-const BASE_URL = "http://localhost/flotrans/api";
+const BASE_URL = "http://localhost/flotrans/api/";
 
 // ---- Fecha de hoy ----
 const hoy = new Date();
@@ -614,21 +614,56 @@ async function cargarKPIs() {
 // BAR CHART
 // =====================================================
 const chartData = {
-  semana: [
-    { label:'Lun', val:18 },{ label:'Mar', val:22 },{ label:'Mié', val:20 },
-    { label:'Jue', val:24 },{ label:'Vie', val:19 },{ label:'Sáb', val:10 },{ label:'Dom', val:5 },
-  ],
-  mes: [
-    { label:'S1', val:20 },{ label:'S2', val:23 },{ label:'S3', val:18 },{ label:'S4', val:25 },
-  ],
+  semana: [],
+  mes: []
 };
 
 async function cargarOcupacion() {
   try {
-    const res  = await fetch(`${BASE_URL}/rutas.php?ocupacion=1`);
+
+    const res = await fetch(`${BASE_URL}rutas.php?ocupacion=1`);
+
+    if (!res.ok) {
+      throw new Error("Error API");
+    }
+
     const data = await res.json();
-    if (Array.isArray(data) && data.length) chartData.semana = data;
-  } catch (e) { /* usa datos por defecto */ }
+
+    if (Array.isArray(data) && data.length > 0) {
+
+      chartData.semana = data.map(item => ({
+        label: item.label,
+        val: parseInt(item.val)
+      }));
+
+    } else {
+
+      chartData.semana = [
+        { label:'Lun', val:0 },
+        { label:'Mar', val:0 },
+        { label:'Mié', val:0 },
+        { label:'Jue', val:0 },
+        { label:'Vie', val:0 },
+        { label:'Sáb', val:0 },
+        { label:'Dom', val:0 },
+      ];
+    }
+
+  } catch (error) {
+
+    console.error("Error ocupación:", error);
+
+    chartData.semana = [
+      { label:'Lun', val:0 },
+      { label:'Mar', val:0 },
+      { label:'Mié', val:0 },
+      { label:'Jue', val:0 },
+      { label:'Vie', val:0 },
+      { label:'Sáb', val:0 },
+      { label:'Dom', val:0 },
+    ];
+  }
+
   renderBarChart();
 }
 
@@ -655,18 +690,46 @@ function renderBarChart() {
 // DONUT CHART
 // =====================================================
 async function cargarContratos() {
-  let tipos = [
-    { label:'Educativo', pct:45, color:'#1a5c2a' },
-    { label:'Industrial', pct:30, color:'#4caf70' },
-    { label:'Urbano',    pct:25, color:'#a8d5b5' },
-  ];
+
+  let tipos = [];
   let total = 0;
+
   try {
-    const res  = await fetch(`${BASE_URL}/contratos.php?resumen=1`);
+
+    const res = await fetch(`${BASE_URL}contratos.php?resumen=1`);
+
+    if (!res.ok) {
+      throw new Error("Error API");
+    }
+
     const data = await res.json();
-    if (data.tipos && Array.isArray(data.tipos) && data.tipos.length) tipos = data.tipos;
-    total = data.total ?? 0;
-  } catch (e) { /* usa datos por defecto */ }
+
+    total = parseInt(data.total || 0);
+
+    if (Array.isArray(data.tipos)) {
+
+      tipos = data.tipos.map((t, i) => ({
+        label: t.label,
+        pct: parseInt(t.pct),
+        color: [
+          '#1a5c2a',
+          '#4caf70',
+          '#a8d5b5',
+          '#2e8b57',
+          '#81c784'
+        ][i % 5]
+      }));
+
+    }
+
+  } catch (error) {
+
+    console.error("Error contratos:", error);
+
+    tipos = [];
+    total = 0;
+  }
+
   renderDonut(tipos, total);
 }
 
