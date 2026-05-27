@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLOTRANS - Dashboard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-dark:  #1a5c2a;
+    --green-main:  #2a7a3b;
+    --green-btn:   #1f6b2f;
+    --green-light: #e8f5ec;
+    --green-tag:   #d4edda;
+    --green-text:  #155724;
+    --blue-tag:    #dbeafe;
+    --blue-text:   #1e40af;
+    --amber-tag:   #fef3cd;
+    --amber-text:  #856404;
+    --red-tag:     #fdecea;
+    --red-text:    #842029;
+    --gray-bg:     #f5f5f3;
+    --gray-border: #e2e1dc;
+    --text-main:   #1a1a18;
+    --text-muted:  #6b6b66;
+    --white:       #ffffff;
+    --sidebar-w:   260px;
+    --bar-h:       60px;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--gray-bg);
+    color: var(--text-main);
+    display: flex;
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--green-dark);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    z-index: 100;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 12px;
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .logo-icon {
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 2.5px solid rgba(255,255,255,0.6);
+    background: var(--green-main);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon::after {
+    content: ''; width: 18px; height: 18px; border-radius: 50%;
+    background: #f0c93a; border: 3px solid rgba(255,255,255,0.5);
+  }
+  .logo-text { color: white; font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+
+  .sidebar-user {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--green-main); color: white;
+    font-weight: 600; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .user-info p { color: white; font-size: 13px; font-weight: 600; }
+  .user-info span { color: rgba(255,255,255,0.55); font-size: 11px; }
+
+  .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px;
+    color: rgba(255,255,255,0.75); text-decoration: none;
+    font-size: 13.5px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+  .nav-item.active { background: var(--green-main); color: white; font-weight: 600; }
+  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .sidebar-bottom { padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+
+  /* ---- MAIN ---- */
+  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+  .topbar {
+    height: var(--bar-h); background: var(--white);
+    border-bottom: 1px solid var(--gray-border);
+    display: flex; align-items: center; padding: 0 28px; gap: 16px;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+  .breadcrumb span { color: var(--text-main); font-weight: 600; }
+  .topbar-search { flex: 1; max-width: 420px; position: relative; }
+  .topbar-search input {
+    width: 100%; height: 36px; border: 1px solid var(--gray-border);
+    border-radius: 8px; padding: 0 14px 0 36px; font-size: 13px;
+    background: var(--gray-bg); outline: none; transition: border-color 0.15s;
+  }
+  .topbar-search input:focus { border-color: var(--green-main); background: white; }
+  .topbar-search svg {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); width: 15px; height: 15px; pointer-events: none;
+  }
+  .topbar-icons { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: none;
+    background: transparent; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-muted); transition: background 0.15s; position: relative;
+  }
+  .icon-btn:hover { background: var(--gray-bg); }
+  .badge { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: #e74c3c; border-radius: 50%; border: 1.5px solid white; }
+  .topbar-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--green-main); color: white;
+    font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+
+  /* ---- CONTENT ---- */
+  .content { padding: 28px 32px; flex: 1; }
+
+  .page-header {
+    display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px;
+  }
+  .page-title h1 { font-size: 26px; font-weight: 700; }
+  .page-title .sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+  .btn-report {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--green-btn); color: white; border: none;
+    border-radius: 10px; padding: 0 20px; height: 44px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-report:hover { background: var(--green-dark); transform: translateY(-1px); }
+  .btn-report svg { width: 18px; height: 18px; }
+
+  /* ---- KPI CARDS ---- */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .kpi-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+
+  .kpi-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+  .kpi-icon {
+    width: 46px; height: 46px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .kpi-icon svg { width: 24px; height: 24px; }
+  .kpi-icon.green { background: var(--green-light); color: var(--green-main); }
+  .kpi-icon.blue  { background: var(--blue-tag);   color: var(--blue-text); }
+  .kpi-icon.bus   { background: #e0f2fe;           color: #0369a1; }
+  .kpi-icon.red   { background: var(--red-tag);    color: var(--red-text); }
+
+  .kpi-trend {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 12px; font-weight: 700; padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .kpi-trend.up   { background: var(--green-light); color: var(--green-text); }
+  .kpi-trend.down { background: var(--red-tag);     color: var(--red-text); }
+  .kpi-trend svg  { width: 12px; height: 12px; }
+
+  .kpi-value { font-size: 32px; font-weight: 800; line-height: 1; color: var(--text-main); margin-bottom: 4px; }
+  .kpi-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+  .kpi-sub   { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
+
+  /* ---- CHARTS ROW ---- */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 18px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: 14px;
+    padding: 22px;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+  }
+  .card-title { font-size: 15px; font-weight: 700; }
+  .card-select {
+    height: 32px; border: 1px solid var(--gray-border); border-radius: 8px;
+    padding: 0 26px 0 10px; font-size: 12px;
+    background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b6b66' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;
+    appearance: none; cursor: pointer; outline: none; color: var(--text-main);
+  }
+
+  /* Bar chart */
+  .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 180px; padding-bottom: 28px; position: relative; }
+  .bar-chart::after {
+    content: '';
+    position: absolute; bottom: 28px; left: 0; right: 0;
+    height: 1px; background: var(--gray-border);
+  }
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bar {
+    width: 100%; border-radius: 6px 6px 0 0;
+    background: var(--green-main);
+    transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    min-height: 4px;
+  }
+  .bar:hover { background: var(--green-dark); }
+  .bar-tooltip {
+    position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+    background: var(--text-main); color: white;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 7px; border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  .bar:hover .bar-tooltip { opacity: 1; }
+  .bar-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-align: center; }
+
+  /* Donut chart */
+  .donut-wrap { display: flex; flex-direction: column; align-items: center; }
+  .donut-svg { width: 160px; height: 160px; }
+  .donut-legend { width: 100%; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-left { display: flex; align-items: center; gap: 8px; }
+  .legend-pct { font-weight: 700; color: var(--text-main); }
+
+  /* ---- BOTTOM ROW ---- */
+  .bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+  /* Routes table */
+  .routes-table { width: 100%; border-collapse: collapse; }
+  .routes-table th {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-muted);
+    padding: 0 0 10px; text-align: left; border-bottom: 1px solid var(--gray-border);
+  }
+  .routes-table td { padding: 11px 0; border-bottom: 1px solid var(--gray-border); font-size: 13px; vertical-align: middle; }
+  .routes-table tr:last-child td { border-bottom: none; }
+  .route-name { font-weight: 600; }
+  .route-conductor { color: var(--text-muted); font-size: 12px; }
+  .placa-sm {
+    display: inline-block; padding: 2px 7px; border-radius: 5px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+    background: #f0f0ee; color: var(--text-main); font-family: monospace;
+  }
+  .route-empty { color: var(--text-muted); font-style: italic; }
+
+  /* Alerts */
+  .alerts-list { display: flex; flex-direction: column; gap: 10px; }
+  .alert-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+  }
+  .alert-item.warn { background: #fffbeb; border-color: #fde68a; }
+  .alert-item.error { background: var(--red-tag); border-color: #fca5a5; }
+  .alert-item.info { background: var(--blue-tag); border-color: #93c5fd; }
+  .alert-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .alert-icon.warn  { background: #fef3cd; color: var(--amber-text); }
+  .alert-icon.error { background: #fdecea; color: var(--red-text); }
+  .alert-icon.info  { background: #dbeafe; color: var(--blue-text); }
+  .alert-icon svg { width: 14px; height: 14px; }
+  .alert-content p { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .alert-content span { font-size: 11.5px; color: var(--text-muted); }
+
+  /* Loading state */
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0ee 25%, #e8e8e6 50%, #f0f0ee 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+  .help-btn {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--green-main); color: white; border: none;
+    font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 50;
+  }
+
+  #toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: #1a5c2a; color: white;
+    padding: 12px 20px; border-radius: 10px;
+    font-size: 13.5px; font-weight: 500; z-index: 999;
+    transform: translateY(80px); opacity: 0; transition: all 0.25s; pointer-events: none;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"></div>
+    <span class="logo-text">FLOTRANS</span>
+  </div>
+  <div class="sidebar-user">
+    <div class="avatar" id="sidebarAvatar">JD</div>
+    <div class="user-info">
+      <p id="sidebarName">Juan Pérez</p>
+      <span>Administrador</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <!-- ✅ Dashboard es el activo aquí -->
+    <a class="nav-item active" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="1.8"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="conductores.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" stroke-width="1.8"/><circle cx="17" cy="9" r="3" stroke-width="1.8"/><path d="M1 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2" stroke-width="1.8"/><path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke-width="1.8"/></svg>
+      Conductores
+    </a>
+    <a class="nav-item" href="vehiculos.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="9" width="22" height="10" rx="2" stroke-width="1.8"/><path d="M5 9V6a7 7 0 0 1 14 0v3" stroke-width="1.8"/><circle cx="12" cy="14" r="1.5" fill="currentColor"/></svg>
+      Vehículos
+    </a>
+    <a class="nav-item" href="contratos.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-width="1.8"/><polyline points="14 2 14 8 20 8" stroke-width="1.8"/><line x1="16" y1="13" x2="8" y2="13" stroke-width="1.8"/><line x1="16" y1="17" x2="8" y2="17" stroke-width="1.8"/></svg>
+      Contratos
+    </a>
+    <a class="nav-item" href="rutas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12" stroke-width="1.8"/><polyline points="8 8 3 12 8 16" stroke-width="1.8"/><polyline points="16 8 21 12 16 16" stroke-width="1.8"/></svg>
+      Rutas
+    </a>
+    <a class="nav-item" href="programacion.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="1.8"/><line x1="16" y1="2" x2="16" y2="6" stroke-width="1.8"/><line x1="8" y1="2" x2="8" y2="6" stroke-width="1.8"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="1.8"/></svg>
+      Programación
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="nav-item" href="#">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-width="1.8"/><polyline points="16 17 21 12 16 7" stroke-width="1.8"/><line x1="21" y1="12" x2="9" y2="12" stroke-width="1.8"/></svg>
+      Cerrar sesión
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="breadcrumb">Inicio &rsaquo; <span>Dashboard</span></div>
+    <div class="topbar-search">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="1.8"/><path d="m21 21-4.35-4.35" stroke-width="1.8"/></svg>
+      <input type="text" placeholder="Buscar rutas, conductores, vehículos…">
+    </div>
+    <div class="topbar-icons">
+      <button class="icon-btn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-width="1.8"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-width="1.8"/></svg>
+        <span class="badge" id="notifBadge" style="display:none"></span>
+      </button>
+      <button class="icon-btn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="3" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke-width="1.8"/></svg>
+      </button>
+      <div class="topbar-avatar">JD</div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Dashboard</h1>
+        <div class="sub" id="fechaHoy">Cargando…</div>
+      </div>
+      <button class="btn-report" onclick="generarReporte()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-width="1.8"/><polyline points="14 2 14 8 20 8" stroke-width="1.8"/><polyline points="8 12 8 18" stroke-width="1.8"/><polyline points="12 12 12 18" stroke-width="1.8"/><polyline points="16 12 16 18" stroke-width="1.8"/></svg>
+        Generar reporte del día
+      </button>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid" id="kpiGrid">
+      <!-- Rendered by JS -->
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="charts-row">
+      <!-- Occupancy chart -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Ocupación de flota por franja horaria</span>
+          <select class="card-select" id="chartPeriod" onchange="renderBarChart()">
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+          </select>
+        </div>
+        <div class="bar-chart" id="barChart"></div>
+      </div>
+
+      <!-- Contratos donut -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Contratos por Tipo</span>
+        </div>
+        <div class="donut-wrap">
+          <svg class="donut-svg" viewBox="0 0 160 160" id="donutSvg"></svg>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="bottom-row">
+      <!-- Rutas del día -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Rutas del Día</span>
+          <a href="rutas.html" style="font-size:12px;color:var(--green-main);font-weight:600;text-decoration:none;">Ver todas →</a>
+        </div>
+        <table class="routes-table">
+          <thead>
+            <tr>
+              <th>Ruta</th>
+              <th>Conductor</th>
+              <th>Vehículo</th>
+            </tr>
+          </thead>
+          <tbody id="routesTbody">
+            <tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-muted)">Cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Alertas -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Alertas Recientes</span>
+          <span style="font-size:12px;color:var(--text-muted)" id="alertCount">—</span>
+        </div>
+        <div class="alerts-list" id="alertsList">
+          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">Cargando…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<button class="help-btn">?</button>
+<div id="toast"></div>
+
+<script>
+// =====================================================
+// API CONFIG
+// =====================================================
+const BASE_URL = "http://localhost/flotrans/api";
+
+// ---- Fecha de hoy ----
+const hoy = new Date();
+document.getElementById('fechaHoy').textContent =
+  hoy.toLocaleDateString('es-CO', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+// =====================================================
+// KPI CARDS — carga datos reales de la API
+// =====================================================
+const kpiDefs = [
+  {
+    id: 'rutas',
+    icon: 'map',
+    iconClass: 'green',
+    label: 'Rutas Activas Hoy',
+    subFn: (d) => `de ${d.rutas_total ?? '—'} programadas`,
+    url: `${BASE_URL}/rutas.php?resumen=1`,
+    valueFn: (d) => d.rutas_activas ?? 0,
+    trendFn: (d) => d.rutas_trend ?? null,
+  },
+  {
+    id: 'conductores',
+    icon: 'users',
+    iconClass: 'blue',
+    label: 'Conductores Disponibles',
+    subFn: (d) => `de ${d.conductores_total ?? '—'} registrados`,
+    url: `${BASE_URL}/conductores.php?resumen=1`,
+    valueFn: (d) => d.disponibles ?? 0,
+    trendFn: (d) => d.conductores_trend ?? null,
+  },
+  {
+    id: 'vehiculos',
+    icon: 'bus',
+    iconClass: 'bus',
+    label: 'Vehículos en Servicio',
+    subFn: (d) => `de ${d.vehiculos_total ?? '—'} disponibles`,
+    url: `${BASE_URL}/vehiculos.php?resumen=1`,
+    valueFn: (d) => d.en_servicio ?? 0,
+    trendFn: (d) => d.vehiculos_trend ?? null,
+  },
+  {
+    id: 'conflictos',
+    icon: 'alert',
+    iconClass: 'red',
+    label: 'Conflictos Detectados',
+    subFn: (d) => 'requieren atención',
+    url: `${BASE_URL}/alertas.php?resumen=1`,
+    valueFn: (d) => d.conflictos ?? 0,
+    trendFn: (d) => d.conflictos_trend ?? null,
+  },
+];
+
+const svgIcons = {
+  map: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" stroke-width="1.8"/><line x1="8" y1="2" x2="8" y2="18" stroke-width="1.8"/><line x1="16" y1="6" x2="16" y2="22" stroke-width="1.8"/></svg>`,
+  users: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" stroke-width="1.8"/><circle cx="17" cy="9" r="3" stroke-width="1.8"/><path d="M1 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2" stroke-width="1.8"/><path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke-width="1.8"/></svg>`,
+  bus: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="9" width="22" height="10" rx="2" stroke-width="1.8"/><path d="M5 9V6a7 7 0 0 1 14 0v3" stroke-width="1.8"/><circle cx="7" cy="19" r="2" stroke-width="1.8"/><circle cx="17" cy="19" r="2" stroke-width="1.8"/></svg>`,
+  alert: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke-width="1.8"/><line x1="12" y1="9" x2="12" y2="13" stroke-width="1.8"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.5"/></svg>`,
+};
+
+function renderKpiSkeleton() {
+  const grid = document.getElementById('kpiGrid');
+  grid.innerHTML = kpiDefs.map(() => `
+    <div class="kpi-card">
+      <div class="kpi-top">
+        <div class="skeleton" style="width:46px;height:46px;border-radius:12px"></div>
+        <div class="skeleton" style="width:52px;height:24px;border-radius:20px"></div>
+      </div>
+      <div class="skeleton" style="width:70px;height:32px;border-radius:6px;margin-bottom:6px"></div>
+      <div class="skeleton" style="width:120px;height:14px;border-radius:4px"></div>
+    </div>
+  `).join('');
+}
+
+async function cargarKPIs() {
+  renderKpiSkeleton();
+  const results = await Promise.allSettled(
+    kpiDefs.map(k => fetch(k.url).then(r => r.json()).catch(() => null))
+  );
+
+  const grid = document.getElementById('kpiGrid');
+  grid.innerHTML = kpiDefs.map((k, i) => {
+    const data = results[i].value ?? {};
+    const val = k.valueFn(data);
+    const trend = k.trendFn(data);
+    const sub = k.subFn(data);
+
+    let trendHtml = '';
+    if (trend !== null && trend !== undefined) {
+      const isUp = trend >= 0;
+      const arrow = isUp
+        ? `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15" stroke-width="2.5"/></svg>`
+        : `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-width="2.5"/></svg>`;
+      trendHtml = `<div class="kpi-trend ${isUp ? 'up' : 'down'}">${arrow} ${Math.abs(trend)}%</div>`;
+    }
+
+    return `
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon ${k.iconClass}">${svgIcons[k.icon]}</div>
+          ${trendHtml}
+        </div>
+        <div class="kpi-value" id="kpi-${k.id}">${val}</div>
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-sub">${sub}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// =====================================================
+// BAR CHART — Ocupación de flota por franja horaria
+// =====================================================
+const chartData = {
+  semana: [
+    { label: 'Lun', val: 18 }, { label: 'Mar', val: 22 }, { label: 'Mié', val: 20 },
+    { label: 'Jue', val: 24 }, { label: 'Vie', val: 19 }, { label: 'Sáb', val: 10 }, { label: 'Dom', val: 5 },
+  ],
+  mes: [
+    { label: 'S1', val: 20 }, { label: 'S2', val: 23 }, { label: 'S3', val: 18 }, { label: 'S4', val: 25 },
+  ],
+};
+
+async function cargarOcupacion() {
+  try {
+    const res = await fetch(`${BASE_URL}/rutas.php?ocupacion=1`);
+    const data = await res.json();
+    if (Array.isArray(data) && data.length) {
+      chartData.semana = data;
+    }
+  } catch (e) { /* usa datos por defecto */ }
+  renderBarChart();
+}
+
+function renderBarChart() {
+  const period = document.getElementById('chartPeriod').value;
+  const items = chartData[period];
+  const max = Math.max(...items.map(i => i.val), 1);
+  const maxH = 140;
+
+  document.getElementById('barChart').innerHTML = items.map(item => {
+    const h = Math.round((item.val / max) * maxH);
+    return `
+      <div class="bar-wrap">
+        <div class="bar" style="height:${h}px">
+          <div class="bar-tooltip">${item.val} vehículos</div>
+        </div>
+        <span class="bar-label">${item.label}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// =====================================================
+// DONUT CHART — Contratos por tipo
+// =====================================================
+async function cargarContratos() {
+  let tipos = [
+    { label: 'Educativo', pct: 45, color: '#1a5c2a' },
+    { label: 'Industrial', pct: 30, color: '#4caf70' },
+    { label: 'Urbano',    pct: 25, color: '#a8d5b5' },
+  ];
+  let total = 0;
+
+  try {
+    const res = await fetch(`${BASE_URL}/contratos.php?resumen=1`);
+    const data = await res.json();
+    if (data.tipos && Array.isArray(data.tipos) && data.tipos.length) {
+      tipos = data.tipos;
+    }
+    total = data.total ?? 0;
+  } catch (e) { /* usa datos por defecto */ }
+
+  renderDonut(tipos, total);
+}
+
+function renderDonut(items, total) {
+  const cx = 80, cy = 80, r = 58, stroke = 22;
+  const circ = 2 * Math.PI * r;
+  let offset = -circ * 0.25; // start at top
+
+  const svgEl = document.getElementById('donutSvg');
+  const legendEl = document.getElementById('donutLegend');
+
+  // Background ring
+  let paths = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f0f0ee" stroke-width="${stroke}"/>`;
+
+  let sum = items.reduce((a, b) => a + (b.pct ?? 0), 0);
+  if (sum === 0) sum = 1;
+
+  items.forEach(item => {
+    const frac = item.pct / sum;
+    const dash = circ * frac;
+    const gap  = circ - dash;
+    paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+      stroke="${item.color}" stroke-width="${stroke}"
+      stroke-dasharray="${dash} ${gap}"
+      stroke-dashoffset="${-offset}"
+      style="transition: stroke-dasharray 0.6s ease"
+    />`;
+    offset += dash;
+  });
+
+  const totalTxt = total > 0
+    ? `<text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="22" font-weight="800" fill="#1a1a18">${total}</text>
+       <text x="${cx}" y="${cy + 14}" text-anchor="middle" font-size="11" fill="#6b6b66">contratos</text>`
+    : `<text x="${cx}" y="${cy + 5}" text-anchor="middle" font-size="11" fill="#6b6b66">—</text>`;
+
+  svgEl.innerHTML = paths + totalTxt;
+
+  legendEl.innerHTML = items.map(item => `
+    <div class="legend-item">
+      <div class="legend-left">
+        <div class="legend-dot" style="background:${item.color}"></div>
+        <span>${item.label}</span>
+      </div>
+      <span class="legend-pct">${item.pct}%</span>
+    </div>
+  `).join('');
+}
+
+// =====================================================
+// RUTAS DEL DÍA — solo desde la API, sin datos hardcodeados
+// =====================================================
+async function cargarRutas() {
+  const tbody = document.getElementById('routesTbody');
+  tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:28px;color:var(--text-muted);font-size:13px">Cargando rutas…</td></tr>`;
+
+  try {
+    const res  = await fetch(`${BASE_URL}/rutas.php?hoy=1&limit=6`);
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      tbody.innerHTML = `
+        <tr><td colspan="3">
+          <div style="text-align:center;padding:32px 16px;color:var(--text-muted)">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="36" height="36" style="opacity:.3;display:block;margin:0 auto 10px"><line x1="3" y1="12" x2="21" y2="12" stroke-width="1.6"/><polyline points="8 8 3 12 8 16" stroke-width="1.6"/><polyline points="16 8 21 12 16 16" stroke-width="1.6"/></svg>
+            <p style="font-size:13px;font-weight:600;color:var(--text-main)">Sin rutas programadas hoy</p>
+            <small style="font-size:12px">Las rutas aparecerán aquí una vez sean registradas</small>
+          </div>
+        </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.map(r => `
+      <tr>
+        <td><div class="route-name">${esc(r.nombre)}</div></td>
+        <td>${r.conductor
+          ? `<div class="route-conductor">${esc(r.conductor)}</div>`
+          : `<span class="route-empty">Sin asignar</span>`}
+        </td>
+        <td>${r.placa
+          ? `<span class="placa-sm">${esc(r.placa)}</span>`
+          : '—'}
+        </td>
+      </tr>
+    `).join('');
+
+  } catch (e) {
+    tbody.innerHTML = `
+      <tr><td colspan="3">
+        <div style="text-align:center;padding:28px 16px;color:var(--text-muted)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="32" height="32" style="opacity:.3;display:block;margin:0 auto 8px"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><line x1="12" y1="8" x2="12" y2="12" stroke-width="1.6"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2.5"/></svg>
+          <small style="font-size:12px">No se pudo conectar con la API</small>
+        </div>
+      </td></tr>`;
+  }
+}
+
+// =====================================================
+// ALERTAS — solo desde la API, sin datos hardcodeados
+// =====================================================
+async function cargarAlertas() {
+  const listEl  = document.getElementById('alertsList');
+  const countEl = document.getElementById('alertCount');
+
+  listEl.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted);font-size:13px">Cargando alertas…</div>`;
+
+  const iconMap = {
+    warn:  `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke-width="1.8"/><line x1="12" y1="9" x2="12" y2="13" stroke-width="1.8"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.5"/></svg>`,
+    error: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="1.8"/><line x1="12" y1="8" x2="12" y2="12" stroke-width="1.8"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2.5"/></svg>`,
+    info:  `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="1.8"/><line x1="12" y1="16" x2="12" y2="12" stroke-width="1.8"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.5"/></svg>`,
+  };
+
+  try {
+    const res  = await fetch(`${BASE_URL}/alertas.php?limit=5`);
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      countEl.textContent = '0 alertas';
+      listEl.innerHTML = `
+        <div style="text-align:center;padding:32px 16px;color:var(--text-muted)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="36" height="36" style="opacity:.3;display:block;margin:0 auto 10px"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-width="1.6"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-width="1.6"/></svg>
+          <p style="font-size:13px;font-weight:600;color:var(--text-main)">Sin alertas por ahora</p>
+          <small style="font-size:12px">Todo está en orden</small>
+        </div>`;
+      return;
+    }
+
+    countEl.textContent = `${data.length} alertas`;
+    document.getElementById('notifBadge').style.display = 'block';
+
+    listEl.innerHTML = data.map(a => `
+      <div class="alert-item ${a.tipo}">
+        <div class="alert-icon ${a.tipo}">${iconMap[a.tipo] || iconMap.info}</div>
+        <div class="alert-content">
+          <p>${esc(a.titulo)}</p>
+          <span>${esc(a.hace)}</span>
+        </div>
+      </div>
+    `).join('');
+
+  } catch (e) {
+    countEl.textContent = '—';
+    listEl.innerHTML = `
+      <div style="text-align:center;padding:28px 16px;color:var(--text-muted)">
+        <small style="font-size:12px">No se pudo conectar con la API</small>
+      </div>`;
+  }
+}
+
+// =====================================================
+// Reporte del día
+// =====================================================
+function generarReporte() {
+  mostrarToast('✓ Generando reporte… (conecta con tu API de reportes)');
+}
+
+function esc(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show';
+  setTimeout(() => { t.className = ''; }, 3500);
+}
+
+// ---- INIT ----
+cargarKPIs();
+cargarOcupacion();
+cargarContratos();
+cargarRutas();
+cargarAlertas();
+</script>
+</body>
+</html>
